@@ -1,0 +1,29 @@
+Unit Test Generator For Basic Model Crud Operations in YiiFramework.
+
+
+UnitTestYiis auto-generates basic Create, Read, Update and Delete actions on a given Model.
+
+##Requirements
+Yii 1.4 or above
+You must have a fixture for the given Model you wish to generate test on.
+
+##Installation 
+1. Place the `CrudUnit' directory into your extensions directory
+2. Place the file `CreateUnitTestCommand.php' into your `commands/shell' directory.
+3. In your `config/test.php' add the import statement bellow
+~~~
+[php]
+'import'=>array(
+   'ext.CrudUnit.*'
+),
+~~~
+
+##Usage
+1. Open your terminal and enter yiic shell
+2. Type createunittest
+3. You will be prompted to enter your Model name (example: `User').
+4. Hit enter.
+5. You will be prompted to enter the name of your fixture file without the `.php' (example: `users'
+6. Hit enter.
+7. You will be prompted to enter your fixture key prefix (Example `user_` as in ('user_1'=>array('id'=>1, etc..), user_2=>array('id'=>2, ...), ...).
+8. That's it! You can now run your tests.
