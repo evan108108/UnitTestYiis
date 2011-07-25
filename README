@@ -1,9 +1,6 @@
 Unit Test Generator For Basic Model Crud Operations in YiiFramework.
 
-
-UnitTestYiis auto-generates basic Create, Read, Update and Delete actions on a given Model.
-
-##Requirements
+#Requirements
 Yii 1.4 or above
 You must have a fixture for the given Model you wish to generate test on.
 
