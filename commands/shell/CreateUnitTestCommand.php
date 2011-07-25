@@ -5,7 +5,7 @@ class CreateUnitTestCommand extends CConsoleCommand
 	{
 		return <<<EOD
 USAGE
-  adduser
+  createunittest
 
 DESCRIPTION
   This command generates unit tests for CRUD operations on a given model class
