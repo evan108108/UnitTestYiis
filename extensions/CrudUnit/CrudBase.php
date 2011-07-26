@@ -6,6 +6,7 @@ Class CrudBase extends CDbTestCase implements iCrudBase
 { 
 	//public $controller; 
   public $fixtures = array();
+  public $check_data_consistency_after_save = false;
 
   	
   public function testGetRecord()
@@ -13,27 +14,27 @@ Class CrudBase extends CDbTestCase implements iCrudBase
     $fixture = $this->getFixture();
     $results = $this->getModel($fixture, 1);
     foreach($fixture[($this->getFixtureKey(1))] as $attr=>$value)
-      $this->assertTrue($results->$attr == $value);
+      $this->assertTrue($results->$attr == $value, "Attribute $attr: " . $results->$attr . ' is not equal to ' . $value);
   }
 
   public function testDelete()
   {
     $fixture = $this->getFixture();
-    $this->assertTrue($this->deleteItem($fixture, 1));
+    $this->assertTrue($this->deleteItem($fixture, 1), "Item could not be deleted");
     $model = $this->getModel($fixture, 1);
-    $this->assertNull($model);
+    $this->assertNull($model, "Model " . CJSON::encode($model) . " is not Equal to null and thus could not be deleted");
   }
 
   public function testCreate()
   {
     $fixture = $this->getFixture();
-    $this->assertTrue($this->deleteItem($fixture, 1));
+    $this->assertTrue($this->deleteItem($fixture, 1), "Item was not deleted");
     $model = $this->getModel($fixture, 1);
-    $this->assertNull($model);
+    $this->assertNull($model, "Model " . CJSON::encode($model) . " is not Equal to null and thus could not be deleted");
     $model = new $this->modelName;
     foreach($fixture[($this->getFixtureKey(1))] as $attr=>$value)
       $model->$attr = $value;
-    $this->assertTrue($model->save());
+    $this->assertTrue($model->save(), '$model->save() returned false and thus could not be saved. Data: ' .  CJSON::encode($model));
     $pk = $model->tableSchema->primaryKey;
     $this->checkSaveOkay($fixture, 1, $model->$pk);
   }
@@ -42,10 +43,10 @@ Class CrudBase extends CDbTestCase implements iCrudBase
   {
     $fixture = $this->getFixture();
     $model = $this->getModel($fixture, 1);
-    $this->assertTrue($this->deleteItem($fixture, 2));
+    $this->assertTrue($this->deleteItem($fixture, 2), "Item was not deleted");
      foreach($fixture[($this->getFixtureKey(2))] as $attr=>$value)
       $model->$attr = $value;
-     $this->assertTrue($model->save());
+     $this->assertTrue($model->save(), '$model->save() returned false and thus could not be saved. Data: ' .  CJSON::encode($model));
      $pk = $model->tableSchema->primaryKey;
      $this->checkSaveOkay($fixture, 2, $model->$pk);
   }
@@ -65,7 +66,7 @@ Class CrudBase extends CDbTestCase implements iCrudBase
       $atr = $requiredAtr[$i];
       $orgValue = $model->$atr;
       $model->$atr = '';
-      $this->assertFalse($model->save());
+      $this->assertFalse($model->save(), "model allowed save when required field '$atr' was Empty");
       $model->$atr = $orgValue;
     }
   }
@@ -93,10 +94,13 @@ Class CrudBase extends CDbTestCase implements iCrudBase
 
   public function checkSaveOkay($fixture, $fixtureKey, $newID)
   {
+    if(!$this->check_data_consistency_after_save)
+      return; 
     $model = new $this->modelName;
     $model = $model->findByPk($newID);
     foreach($fixture[($this->getFixtureKey($fixtureKey))] as $attr=>$value)
-       $this->assertTrue($model->$attr == $value);
+      $this->assertTrue($model->$attr == $value, "Attribute $attr: " . $model->$attr . ' is not equal to ' . $value);
+
   }
 
   public function getFixtureKey($id=1)
