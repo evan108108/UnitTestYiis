@@ -79,8 +79,7 @@ Class CrudBase extends CDbTestCase implements iCrudBase
   
   public function getFixture()
   {
-    $fixname = $this->fixtureRef;
-    return $this->$fixname;
+    return $this->{$this->fixtureRef};
   }
 
   public function deleteItem($fixture, $fixtireKey)
