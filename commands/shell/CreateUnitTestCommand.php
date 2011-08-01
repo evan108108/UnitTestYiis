@@ -58,7 +58,7 @@ EOD;
       /**
        * Created by Evan Frohlich evan.frohlich@controlgroup.com
        */ 
-      Class  SampleUnitTest extends CrudBase
+      Class ' . ucfirst($modelName) . 'UnitTest extends CrudBase
       { 
         public $fixtures = array(' . "'" . $fixtureName . "'" . '=>' . "'" . $modelName . "'" .  ');
 
