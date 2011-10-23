@@ -6,9 +6,17 @@ Class CrudBase extends CDbTestCase implements iCrudBase
 { 
 	//public $controller; 
   public $fixtures = array();
-  public $check_data_consistency_after_save = false;
-
-  	
+  
+  public function setup()
+  {
+    parent::setup();
+  }
+  public function testModel()
+  { 
+  	$model = new $this->modelName;
+  	$this->assertTrue($model instanceof $this->modelName);
+  }
+  
   public function testGetRecord()
   {
     $fixture = $this->getFixture();
@@ -35,8 +43,23 @@ Class CrudBase extends CDbTestCase implements iCrudBase
     foreach($fixture[($this->getFixtureKey(1))] as $attr=>$value)
       $model->$attr = $value;
     $this->assertTrue($model->save(), '$model->save() returned false and thus could not be saved. Data: ' .  CJSON::encode($model));
-    $pk = $model->tableSchema->primaryKey;
-    $this->checkSaveOkay($fixture, 1, $model->$pk);
+    
+    $this->checkSaveOkay($fixture, 1, $this->getPkValues($model));
+  }
+  
+  public function getPkValues($model)
+  {
+  	$pk = $model->tableSchema->primaryKey;
+  	if(is_array($pk))
+  	{
+  		$PKValue = array();
+  		foreach($pk as $attr=>$value)
+  		{
+  			$PKValue[$value] = $model->$value;
+  		}
+  		return $PKValue;
+  	}
+  	return $model->$pk;
   }
 
   public function testUpdate()
@@ -47,8 +70,9 @@ Class CrudBase extends CDbTestCase implements iCrudBase
      foreach($fixture[($this->getFixtureKey(2))] as $attr=>$value)
       $model->$attr = $value;
      $this->assertTrue($model->save(), '$model->save() returned false and thus could not be saved. Data: ' .  CJSON::encode($model));
-     $pk = $model->tableSchema->primaryKey;
-     $this->checkSaveOkay($fixture, 2, $model->$pk);
+     //$pk = $model->tableSchema->primaryKey;
+     
+     $this->checkSaveOkay($fixture, 2, $this->getPkValues($model));
   }
 
   public function testRequiredAttr()
@@ -74,17 +98,30 @@ Class CrudBase extends CDbTestCase implements iCrudBase
   public function getModel($fixture, $fixtureKey=1)
   {
     $model = new $this->modelName;
-    return $model->findByPk($fixture[($this->getFixtureKey($fixtureKey))][$model->tableSchema->primaryKey]);
+    $pk = $model->tableSchema->primaryKey;
+  
+    if(is_array($pk))
+    {
+    	$pkList = array();
+    	foreach($pk as $value)
+    	{
+    		$pkList[$value] = $fixture[($this->getFixtureKey($fixtureKey))][$value];
+    	}
+    	 return $model->findByPk($pkList);
+    }
+   
+    return $model->findByPk($fixture[($this->getFixtureKey($fixtureKey))][$pk]);
   }
   
   public function getFixture()
   {
-    return $this->{$this->fixtureRef};
+   return $this->{$this->fixtureRef}; 
   }
 
   public function deleteItem($fixture, $fixtireKey)
   {
     $model = $this->getModel($fixture, $fixtireKey);
+
     if($model->delete())
       return true;
     else
@@ -101,11 +138,12 @@ Class CrudBase extends CDbTestCase implements iCrudBase
       $this->assertTrue($model->$attr == $value, "Attribute $attr: " . $model->$attr . ' is not equal to ' . $value);
 
   }
-
+  
   public function getFixtureKey($id=1)
   {
     if(!isset($this->fixtureKeyPrefix))
       return $this->fixtureKeyPrefix = $this->modelName . "_" . $id;
     return $this->fixtureKeyPrefix . $id;
   }
+  
 }
