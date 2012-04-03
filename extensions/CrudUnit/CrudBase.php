@@ -7,6 +7,8 @@ Class CrudBase extends CDbTestCase implements iCrudBase
 	//public $controller; 
   public $fixtures = array();
   
+  public $ignorAttr = array('crt_dtm'=>true, 'lud_dtm'=>true, 'id'=>true);
+  
   public function setup()
   {
     parent::setup();
@@ -68,7 +70,7 @@ Class CrudBase extends CDbTestCase implements iCrudBase
     $model = $this->getModel($fixture, 1);
     $this->assertTrue($this->deleteItem($fixture, 2), "Item was not deleted");
      foreach($fixture[($this->getFixtureKey(2))] as $attr=>$value)
-      $model->$attr = $value;
+       if ($attr != 'id') $model->$attr = $value;
      $this->assertTrue($model->save(), '$model->save() returned false and thus could not be saved. Data: ' .  CJSON::encode($model));
      //$pk = $model->tableSchema->primaryKey;
      
@@ -135,7 +137,10 @@ Class CrudBase extends CDbTestCase implements iCrudBase
     $model = new $this->modelName;
     $model = $model->findByPk($newID);
     foreach($fixture[($this->getFixtureKey($fixtureKey))] as $attr=>$value)
-      $this->assertTrue($model->$attr == $value, "Attribute $attr: " . $model->$attr . ' is not equal to ' . $value);
+    {
+    	if(!isset($this->ignorAttr[$attr]))
+      	$this->assertTrue($model->$attr == $value, "Attribute $attr: " . $model->$attr . ' is not equal to ' . $value);
+     }
 
   }
   
@@ -147,3 +152,4 @@ Class CrudBase extends CDbTestCase implements iCrudBase
   }
   
 }
+
