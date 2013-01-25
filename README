@@ -8,12 +8,12 @@ You must have a fixture for the given Model you wish to generate test on.
 1. Place the `CrudUnit' directory into your extensions directory
 2. Place the file `CreateUnitTestCommand.php' into your `commands/shell' directory.
 3. In your `config/test.php' add the import statement bellow
-~~~
-[php]
+
+```php
 'import'=>array(
    'ext.CrudUnit.*'
 ),
-~~~
+```
 
 ##Usage
 1. Open your terminal and enter yiic shell
